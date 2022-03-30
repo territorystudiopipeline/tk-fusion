@@ -32,7 +32,7 @@ class Window(QtGui.QWidget):
     def __init__(self):
         super(Window, self).__init__()
         self.setGeometry(50, 50, 300, 300)
-        self.setWindowTitle("Shotgun: Manu Pannel")
+        self.setWindowTitle("Shotgun: Menu Panel")
         self.mainlayout()
         
     def mainlayout(self):
@@ -79,11 +79,11 @@ class Window(QtGui.QWidget):
         self.snapshot = QtGui.QPushButton("Snapshot...")
         self.snapshot.clicked.connect(lambda: self.callMenu('Snapshot...'))
 
-        self.publish = QtGui.QPushButton("Publish...")
-        self.publish.clicked.connect(lambda: self.callMenu('Publish...'))
+        self.publish = QtGui.QPushButton("Fusion Publish...")
+        self.publish.clicked.connect(lambda: self.callMenu('Fusion Publish...'))
 
-        self.load = QtGui.QPushButton("Load...")
-        self.load.clicked.connect(lambda: self.callMenu('Load...'))
+        self.load = QtGui.QPushButton("Load Publishes...")
+        self.load.clicked.connect(lambda: self.callMenu('Load Publishes...'))
 
         self.breakdown = QtGui.QPushButton("Scene Breakdown...")
         self.breakdown.clicked.connect(lambda: self.callMenu('Scene Breakdown...'))
@@ -107,8 +107,8 @@ class Window(QtGui.QWidget):
         #######################################
 
 
-        self.pannel = QtGui.QPushButton("Shotgun Panel...")
-        self.pannel.clicked.connect(lambda: self.callMenu('Shotgun Panel...'))
+        # self.pannel = QtGui.QPushButton("Shotgun Panel...")
+        # self.pannel.clicked.connect(lambda: self.callMenu('Shotgun Panel...'))
 
         #######################################
         self.shotgun_workfiles_menu_open = QtGui.QAction(self)
@@ -127,40 +127,40 @@ class Window(QtGui.QWidget):
         self.shotgun_workfiles.setMenu(self.shotgun_workfiles_menu)
         #######################################
 
-        self.syncFr = QtGui.QPushButton("Sync Frame Range with Shotgun")
-        self.syncFr.clicked.connect(lambda: self.callMenu('Sync Frame Range with Shotgun'))
+        self.syncFr = QtGui.QPushButton("Sync Frame Range with Shotgrid")
+        self.syncFr.clicked.connect(lambda: self.callMenu('Sync Frame Range with Shotgrid'))
 
         #######################################
-        self.sg_saver_dpx_out = QtGui.QAction(self)
-        self.sg_saver_dpx_out.setText("Dpx Output")
-        self.sg_saver_dpx_out.activated.connect(lambda: self.__create_sg_saver('dpx'))
-
         self.sg_saver_exr16_out = QtGui.QAction(self)
-        self.sg_saver_exr16_out.setText("Exr, 16 bit Output")
-        self.sg_saver_exr16_out.activated.connect(lambda: self.__create_sg_saver('exr'))
-
-        self.sg_saver_pngProxy_out = QtGui.QAction(self)
-        self.sg_saver_pngProxy_out.setText("Png, Proxy with Alpha")
-        self.sg_saver_pngProxy_out.activated.connect(lambda: self.__create_sg_saver('png'))
+        self.sg_saver_exr16_out.setText("EXR Sequence")
+        self.sg_saver_exr16_out.activated.connect(lambda: self.__create_sg_saver('sequence_render', 'exr'))
 
         self.sg_saver_review_out = QtGui.QAction(self)
-        self.sg_saver_review_out.setText("Shotgun Quick Review")
-        self.sg_saver_review_out.activated.connect(lambda: self.__create_sg_saver('mov'))
+        self.sg_saver_review_out.setText("Quicktime Movie")
+        self.sg_saver_review_out.activated.connect(lambda: self.__create_sg_saver('render', 'mov'))
+
+        self.sg_saver_pngProxy_out = QtGui.QAction(self)
+        self.sg_saver_pngProxy_out.setText("PNG Image")
+        self.sg_saver_pngProxy_out.activated.connect(lambda: self.__create_sg_saver('render', 'png'))
+
+        self.sg_saver_jpgProxy_out = QtGui.QAction(self)
+        self.sg_saver_jpgProxy_out.setText("JPEG Image")
+        self.sg_saver_jpgProxy_out.activated.connect(lambda: self.__create_sg_saver('render', 'jpg'))
 
         self.shotgun_output_menu = QtGui.QMenu(self)
-        self.shotgun_output_menu.addAction(self.sg_saver_dpx_out)
         self.shotgun_output_menu.addAction(self.sg_saver_exr16_out)
         self.shotgun_output_menu.addAction(self.sg_saver_pngProxy_out)
         self.shotgun_output_menu.addAction(self.sg_saver_review_out)
+        self.shotgun_output_menu.addAction(self.sg_saver_jpgProxy_out)
 
         self.sg_saver = QtGui.QPushButton("Create Output Node")
         self.sg_saver.setMenu(self.shotgun_output_menu)
         self.sg_saver.setStyleSheet("background-color: #810B44")
 
-        self.sg_saver_update = QtGui.QPushButton("Update Output Nodes")
-        self.sg_saver_update.clicked.connect(lambda: self.__update_sg_saver())
-        self.sg_saver_update.setStyleSheet("background-color: #4A586E")
-        #######################################
+        # self.sg_saver_update = QtGui.QPushButton("Update Output Nodes")
+        # self.sg_saver_update.clicked.connect(lambda: self.__update_sg_saver())
+        # self.sg_saver_update.setStyleSheet("background-color: #4A586E")
+        ######################################
 
         qvbox = QtGui.QVBoxLayout()
 
@@ -186,7 +186,7 @@ class Window(QtGui.QWidget):
         
         qvbox.addWidget(self.snapshot_button)
         
-        qvbox.addWidget(self.pannel)
+        # qvbox.addWidget(self.pannel)
 
         qvbox.addWidget(self.shotgun_workfiles)
 
@@ -198,7 +198,7 @@ class Window(QtGui.QWidget):
         qvbox.addWidget(self.line_tools)
 
         qvbox.addWidget(self.sg_saver)
-        qvbox.addWidget(self.sg_saver_update)
+        # qvbox.addWidget(self.sg_saver_update)
         
         # qvbox.insertStretch(2)
         self.setLayout(qvbox)
@@ -246,7 +246,7 @@ class Window(QtGui.QWidget):
             if exit_code != 0:
                 engine.logger.error("Failed to launch '%s'!", cmd)
 
-    def __create_sg_saver(self, ext_type):
+    def __create_sg_saver(self, renderType, ext_type):
         comp = fusion.GetCurrentComp()
         path = comp.GetAttrs()['COMPS_FileName']
 
@@ -257,21 +257,17 @@ class Window(QtGui.QWidget):
         comp_format = comp.GetPrefs().get('Comp').get('FrameFormat')
         fields['height'] = int(comp_format.get('Height'))
         fields['width'] = int(comp_format.get('Width'))
-        fields['output'] = 'output'
+        fields['ext'] = ext_type
+        fields['SEQ'] = 1234
 
-        text, ok = QtGui.QInputDialog.getText(self, 'Input Name Dialog', 'Enter output name:')
-        
-        if text and ok:
-            fields['output'] = text
-
-        review_template = engine.get_template_by_name("fusion_%s_render_mono_%s" % (task_type.lower(), ext_type))
+        review_template = engine.get_template_by_name("fusion_%s_%s" % (task_type.lower(), renderType))
         output = review_template.apply_fields(fields)
         output = re.sub(r'%(\d+)d', '', output)
 
         comp.Lock()
 
         saver = comp.Saver({"Clip": output})
-        saver.CreateDir = 0
+        saver.CreateDir = 1
         saver.SetAttrs({"TOOLS_Name": "shotgun_%s" % ext_type})
         comp.Unlock()
 
